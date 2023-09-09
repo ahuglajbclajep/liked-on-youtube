@@ -1,0 +1,16 @@
+{
+  "name": "liked-on-youtube",
+  "version": "1.0.0",
+  "description": "",
+  "private": true,
+  "scripts": {
+    "lint:type": "tsc -p . --noEmit",
+    "deploy": "clasp push"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@google/clasp": "^2.4.2",
+    "@types/google-apps-script": "^1.0.68",
+    "@types/google-apps-script-oauth2": "^38.0.0"
+  }
+}

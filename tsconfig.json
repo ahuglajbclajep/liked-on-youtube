@@ -1,0 +1,9 @@
+{
+  // see https://github.com/google/clasp/blob/master/docs/typescript.md
+  "compilerOptions": {
+    "target": "es2019",
+    "strict": true,
+    "types": ["google-apps-script", "google-apps-script-oauth2"],
+    "skipLibCheck": true
+  }
+}

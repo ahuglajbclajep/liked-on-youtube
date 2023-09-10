@@ -1,4 +1,4 @@
-function fetchLikedVideos(): LikedVide[] {
+function fetchLikedVideos(): VideoInfo[] {
   try {
     const result = YouTube.Videos!.list("snippet", {
       myRating: "like",
@@ -16,7 +16,7 @@ function fetchLikedVideos(): LikedVide[] {
 
 function transformer(
   result: Pick<GoogleAppsScript.YouTube.Schema.Video, "id" | "snippet">
-): LikedVide | null {
+): VideoInfo | null {
   if (!result.id || !result.snippet) {
     return null;
   }

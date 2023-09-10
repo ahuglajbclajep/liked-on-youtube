@@ -9,7 +9,7 @@ function fetchLikedVideos(): VideoInfo[] {
     }
     return result.items.map(transformer).filter(isFilled);
   } catch (e) {
-    console.error(e);
+    console.error(`Fetch failed: ${(e as Error).message}`);
     return [];
   }
 }

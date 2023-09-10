@@ -73,7 +73,7 @@ function post(text: string): PostResponseData | null {
     });
     return JSON.parse(response.getContentText());
   } catch (e) {
-    console.error(e);
+    console.error(`Post failed: ${(e as Error).message}`);
     return null;
   }
 }

@@ -51,9 +51,29 @@ function authCallback(request: any) {
 function runMe() {
   const service = getService_();
   if (!service.hasAccess()) {
-    Logger.log(
-      "Open the following URL and re-run the script: %s",
-      service.getAuthorizationUrl()
-    );
+    const url = service.getAuthorizationUrl();
+    console.log(`Open the following URL and re-run the script: ${url}`);
+  }
+}
+
+/**
+ * @see https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets
+ */
+function post(text: string): PostResponseData | null {
+  const service = getService_();
+  if (!service.hasAccess()) return null;
+  try {
+    const response = UrlFetchApp.fetch("https://api.twitter.com/2/tweets", {
+      method: "post",
+      contentType: "application/json",
+      headers: {
+        Authorization: "Bearer " + service.getAccessToken(),
+      },
+      payload: JSON.stringify({ text }),
+    });
+    return JSON.parse(response.getContentText());
+  } catch (e) {
+    console.error(e);
+    return null;
   }
 }

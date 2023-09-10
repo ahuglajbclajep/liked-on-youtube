@@ -10,3 +10,10 @@ type VideoInfo = {
   categoryId: string;
 };
 type VideoId = VideoInfo["id"];
+
+type PostResponseData = {
+  data: {
+    id: number;
+    text: string;
+  };
+};

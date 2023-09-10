@@ -1,6 +1,7 @@
 declare namespace GoogleAppsScriptOAuth2 {
   interface OAuth2Service {
     generateCodeVerifier(): OAuth2Service;
+    setTokenVerifier(): OAuth2Service;
   }
 }
 

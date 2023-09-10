@@ -1,6 +1,22 @@
+const createService_ = OAuth2.createService;
+OAuth2.createService = function (serviceName) {
+  const service = createService_(serviceName);
+  service.setTokenVerifier = function (
+    this: GoogleAppsScriptOAuth2.OAuth2Service & {
+      tokenUrl_: string;
+      codeVerifier_: string;
+    }
+  ) {
+    this.setTokenUrl(`${this.tokenUrl_}?code_verifier=${this.codeVerifier_}`);
+    return this;
+  };
+  return service;
+};
+
 /**
  * 初期化したい場合は getService_().reset(); を実行する
  *
+ * @see https://developer.twitter.com/en/docs/authentication/oauth-2-0/user-access-token
  * @see https://github.com/googleworkspace/apps-script-oauth2#1-create-the-oauth2-service
  * @see https://github.com/googleworkspace/apps-script-oauth2/pull/457
  */
@@ -16,9 +32,10 @@ function getService_() {
       .setClientSecret(CLIENT_SECRET)
       .setCallbackFunction("authCallback")
       .setPropertyStore(PropertiesService.getUserProperties())
-      .setScope("users.read tweet.read tweet.write")
+      .setScope("offline.access users.read tweet.read tweet.write")
       // Generate and add code verifier parameters for PKCE
       .generateCodeVerifier()
+      .setTokenVerifier()
       .setTokenHeaders({
         Authorization:
           "Basic " + Utilities.base64Encode(CLIENT_ID + ":" + CLIENT_SECRET),
@@ -28,7 +45,7 @@ function getService_() {
 }
 
 /**
- * .setCallbackFunction("authCallback") としているため呼ばれる関数
+ * ~.setCallbackFunction("authCallback") としているため呼ばれる関数~
  * OAuth2 のフローが成功したかどうかをユーザーに表示する
  *
  * @see https://github.com/googleworkspace/apps-script-oauth2#3-handle-the-callback
@@ -36,25 +53,33 @@ function getService_() {
 function authCallback(request: any) {
   const authorized = getService_().handleCallback(request);
   if (authorized) {
-    return HtmlService.createHtmlOutput("Success!");
+    return HtmlService.createHtmlOutput("Success! You can close this tab.");
   } else {
-    return HtmlService.createHtmlOutput("Denied.");
+    return HtmlService.createHtmlOutput("Denied. You can close this tab.");
   }
 }
 
 /**
- * アカウントと連携するために、最初に一度、手動で実行する
- * 認可用の URL が出力されるので、これにアクセスしてアクセスを許可する
+ * アカウントと連携するための、URL を発行するエンドポイント
+ * 認可用の URL が表示されるので、これにアクセスしてアクセスを許可する
  *
  * @see https://github.com/googleworkspace/apps-script-oauth2#2-direct-the-user-to-the-authorization-url
+ * @see https://github.com/googleworkspace/apps-script-oauth2/issues/137
  */
-function runMe() {
+function doGet(e: GoogleAppsScript.Events.DoGet) {
+  // authCallback() が機能しないバグがあるので、明示的にバイパスする
+  if (e.parameter["code"]) return authCallback(e);
+
   const service = getService_();
   if (!service.hasAccess()) {
     const url = service.getAuthorizationUrl();
-    console.log(`Open the following URL and re-run the script: ${url}`);
+    const html = `<a href="${url}" target="_blank" rel="noreferrer">🦤 Sign in with Twitter</a>`;
+    return HtmlService.createHtmlOutput(html);
   }
 }
+OAuth2.getRedirectUri = function (_) {
+  return ScriptApp.getService().getUrl();
+};
 
 /**
  * @see https://developer.twitter.com/en/docs/twitter-api/tweets/manage-tweets/api-reference/post-tweets

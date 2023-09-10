@@ -1,6 +1,3 @@
-const CLIENT_ID = "...";
-const CLIENT_SECRET = "...";
-
 /**
  * 初期化したい場合は getService_().reset(); を実行する
  *
@@ -8,6 +5,9 @@ const CLIENT_SECRET = "...";
  * @see https://github.com/googleworkspace/apps-script-oauth2/pull/457
  */
 function getService_() {
+  const CLIENT_ID = "...";
+  const CLIENT_SECRET = "...";
+
   return (
     OAuth2.createService("Twitter")
       .setAuthorizationBaseUrl("https://twitter.com/i/oauth2/authorize")

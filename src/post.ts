@@ -1,13 +1,22 @@
-const createService_ = OAuth2.createService;
+// Service_.generateCodeVerifier を上書きして、毎度同じ code_verifie を使うようにする
+// OAuth2.Service_ に直接アクセスすることはできないので、OAuth2.createService から上書きする
+OAuth2._createService = OAuth2.createService;
 OAuth2.createService = function (serviceName) {
-  const service = createService_(serviceName);
-  service.setTokenVerifier = function (
+  const service = OAuth2._createService(serviceName);
+  service._generateCodeVerifier = service.generateCodeVerifier;
+  service.generateCodeVerifier = function (
     this: GoogleAppsScriptOAuth2.OAuth2Service & {
-      tokenUrl_: string;
-      codeVerifier_: string;
+      propertyStore_: GoogleAppsScript.Properties.Properties;
+      setCodeVerififer: (codeVerifier: string) => void;
     }
   ) {
-    this.setTokenUrl(`${this.tokenUrl_}?code_verifier=${this.codeVerifier_}`);
+    const codeVerifier = this.propertyStore_.getProperty("code_verifier");
+    if (codeVerifier) {
+      this.setCodeVerififer(codeVerifier);
+    } else {
+      service._generateCodeVerifier();
+      this.propertyStore_.setProperty("code_verifier", this.codeVerifier_);
+    }
     return this;
   };
   return service;
@@ -35,7 +44,6 @@ function getService_() {
       .setScope("offline.access users.read tweet.read tweet.write")
       // Generate and add code verifier parameters for PKCE
       .generateCodeVerifier()
-      .setTokenVerifier()
       .setTokenHeaders({
         Authorization:
           "Basic " + Utilities.base64Encode(CLIENT_ID + ":" + CLIENT_SECRET),
@@ -51,6 +59,8 @@ function getService_() {
  * @see https://github.com/googleworkspace/apps-script-oauth2#3-handle-the-callback
  */
 function authCallback(request: any) {
+  const service = getService_();
+  request.parameter.codeVerifier_ = service.codeVerifier_;
   const authorized = getService_().handleCallback(request);
   if (authorized) {
     return HtmlService.createHtmlOutput("Success! You can close this tab.");

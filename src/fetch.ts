@@ -7,14 +7,15 @@ function fetchLikedVideos(): VideoInfo[] {
     if (!result.items) {
       return [];
     }
-    return result.items.map(transformer).filter(isFilled);
+    const isFilled = <T>(t: T | null): t is T => t !== null;
+    return result.items.map(transformer_).filter(isFilled);
   } catch (e) {
     console.error(`Fetch failed: ${(e as Error).message}`);
     return [];
   }
 }
 
-function transformer(
+function transformer_(
   result: Pick<GoogleAppsScript.YouTube.Schema.Video, "id" | "snippet">
 ): VideoInfo | null {
   if (!result.id || !result.snippet) {
@@ -26,9 +27,4 @@ function transformer(
     // see https://gist.github.com/dgp/1b24bf2961521bd75d6c
     categoryId: result.snippet.categoryId ?? "unknown",
   };
-}
-
-// see https://github.com/microsoft/TypeScript/issues/16069#issuecomment-565658443
-function isFilled<T>(t: T | null): t is T {
-  return t !== null;
 }

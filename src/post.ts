@@ -30,8 +30,8 @@ OAuth2.createService = function (serviceName) {
  * @see https://github.com/googleworkspace/apps-script-oauth2/pull/457
  */
 function getService_() {
-  const CLIENT_ID = "...";
-  const CLIENT_SECRET = "...";
+  const CLIENT_ID = "X_CLIENT_ID";
+  const CLIENT_SECRET = "X_CLIENT_SECRET";
 
   return (
     OAuth2.createService("Twitter")

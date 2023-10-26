@@ -8,7 +8,7 @@ function main() {
   const filteredVideos = newLikedVideos;//.filter((v) => v.categoryId === "10");
   if (filteredVideos.length === 0) return;
 
-  for (const { id, title } of filteredVideos) {
+  for (const { id, title } of filteredVideos.reverse()) {
     const videoUrl = `https://www.youtube.com/watch?v=${id}`;
     const text = `Liked on YouTube: ${title}\n${videoUrl}`;
     const result = post(text);
@@ -26,11 +26,4 @@ function newVideos_(latestVideos: VideoInfo[]): VideoInfo[] {
   const newVideoIds = latestVideoIds.filter((v) => !prevVideoIds.includes(v));
   const newVideos = latestVideos.filter((v) => newVideoIds.includes(v.id));
   return newVideos;
-}
-
-function stop() {
-  const triggers = ScriptApp.getProjectTriggers();
-  for (const trigger of triggers) {
-    ScriptApp.deleteTrigger(trigger);
-  }
 }

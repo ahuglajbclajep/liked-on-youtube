@@ -10,10 +10,18 @@ function loadVideoIds(): VideoId[] {
   return json ? JSON.parse(json) : [];
 }
 
+function resetTriggers() {
+  const triggers = ScriptApp.getProjectTriggers();
+  for (const trigger of triggers) {
+    ScriptApp.deleteTrigger(trigger);
+  }
+}
+
 /**
  * 引数で指定された関数を1時間毎に実行するための関数
  */
 function cron(functionName: string) {
+  resetTriggers();
   const now = new Date();
   now.setHours(now.getHours() + 1);
   now.setMinutes(0);
